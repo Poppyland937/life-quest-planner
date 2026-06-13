@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Quest Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#FBF6ED;--surface:#F4ECD8;--surface2:#EDE0C4;--card:#FFFDF8;--border:rgba(92,61,46,0.15);--border-mid:rgba(92,61,46,0.3);--ink:#2C1810;--ink-mid:#5C3D2E;--ink-soft:#8B6F5E;--gold:#B8933A;--gold-light:#F0DFA0;--sage:#5C8A62;--sage-light:#C0D9C2;--rose:#A85C64;--rose-light:#E8C0C4;--blue:#3A6EA8;--blue-light:#C0D4E8;--radius:10px;--radius-sm:6px}
+@media(prefers-color-scheme:dark){:root{--bg:#1C1208;--surface:#261A0C;--surface2:#321F0E;--card:#2C1F10;--border:rgba(230,200,160,0.12);--border-mid:rgba(230,200,160,0.25);--ink:#F0E4CC;--ink-mid:#C8AD8A;--ink-soft:#9A8068;--gold:#D4A84A;--gold-light:#4A3010;--sage:#7AAF80;--sage-light:#1A3A1C;--rose:#C87880;--rose-light:#3A1820;--blue:#6A9ED8;--blue-light:#0E2040}}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding-bottom:2rem}
+.app-header{background:var(--card);border-bottom:1px solid var(--border);padding:1rem 1.25rem 0;position:sticky;top:0;z-index:100}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.app-title{font-family:'Crimson Pro',serif;font-size:22px;font-weight:600;color:var(--ink)}
+.app-sub{font-size:12px;color:var(--ink-soft);margin-top:1px}
+.xp-pill{background:var(--gold-light);color:var(--gold);font-size:12px;font-weight:500;padding:4px 12px;border-radius:20px;white-space:nowrap}
+.tabs{display:flex;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{font-size:13px;padding:10px 14px;cursor:pointer;color:var(--ink-soft);border:none;border-bottom:2px solid transparent;background:none;font-family:'Inter',sans-serif;white-space:nowrap;margin-bottom:-1px}
+.tab.active{color:var(--ink);border-bottom:2px solid var(--gold);font-weight:500}
+.tab i{font-size:15px;vertical-align:-2px;margin-right:5px}
+.app-body{padding:1.25rem;max-width:680px;margin:0 auto}
+.panel{display:none}.panel.active{display:block}
+.section-label{font-size:11px;font-weight:500;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+.char-row{display:flex;gap:1rem;align-items:flex-start;margin-bottom:1.25rem}
+.char-avatar{width:68px;height:68px;border-radius:50%;background:var(--gold-light);border:2px solid var(--border-mid);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;cursor:pointer;user-select:none}
+.char-info{flex:1}
+.char-name{font-family:'Crimson Pro',serif;font-size:20px;font-weight:600;color:var(--ink);cursor:pointer;border-bottom:1px dashed var(--border-mid);display:inline-block;padding-bottom:1px}
+.char-class{font-size:12px;color:var(--ink-soft);margin:4px 0 8px}
+.level-bar-wrap{height:6px;background:var(--surface2);border-radius:3px}
+.level-bar{height:6px;border-radius:3px;background:var(--gold);transition:width .6s ease}
+.level-label{font-size:11px;color:var(--ink-soft);margin-top:4px;display:flex;justify-content:space-between}
+.stats-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem}
+.summary-card{background:var(--surface);border-radius:var(--radius-sm);padding:.75rem;text-align:center}
+.summary-val{font-family:'Crimson Pro',serif;font-size:24px;font-weight:600;color:var(--ink)}
+.summary-label{font-size:10px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:1.25rem}
+@media(min-width:480px){.stat-grid{grid-template-columns:repeat(4,1fr)}}
+.stat-card{background:var(--surface);border-radius:var(--radius-sm);padding:.75rem}
+.stat-label{font-size:10px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.stat-val{font-family:'Crimson Pro',serif;font-size:26px;font-weight:600;color:var(--ink);line-height:1}
+.stat-bar-wrap{margin-top:6px;height:3px;background:var(--border);border-radius:2px}
+.stat-bar{height:3px;border-radius:2px;transition:width .6s ease}
+.row-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input[type=text],select,textarea{font-family:'Inter',sans-serif;font-size:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--ink);outline:none}
+input[type=text]:focus,select:focus,textarea:focus{border-color:var(--border-mid)}
+input[type=text]::placeholder,textarea::placeholder{color:var(--ink-soft)}
+select{cursor:pointer}
+textarea{min-height:80px;resize:vertical;width:100%;line-height:1.6}
+button{font-family:'Inter',sans-serif;font-size:13px;background:var(--surface);border:1px solid var(--border-mid);border-radius:var(--radius-sm);padding:8px 14px;color:var(--ink);cursor:pointer;transition:background .15s,transform .1s;white-space:nowrap}
+button:hover{background:var(--surface2)}button:active{transform:scale(.97)}
+button.primary{background:var(--gold-light);border-color:var(--gold);color:var(--gold);font-weight:500}
+button i{font-size:14px;vertical-align:-2px;margin-right:4px}
+.name-edit-wrap{display:flex;gap:8px;margin-top:6px}.name-edit-wrap input{flex:1}
+.log-list{list-style:none;display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.log-item{display:flex;align-items:center;gap:8px;font-size:13px;padding:8px 12px;background:var(--surface);border-radius:var(--radius-sm)}
+.badge{font-size:10px;padding:2px 8px;border-radius:12px;white-space:nowrap;font-weight:500}
+.badge-creative{background:var(--blue-light);color:var(--blue)}.badge-discipline{background:var(--sage-light);color:var(--sage)}.badge-knowledge{background:var(--gold-light);color:var(--gold)}.badge-career{background:var(--rose-light);color:var(--rose)}
+.log-text{flex:1;color:var(--ink)}.log-xp{font-size:11px;color:var(--gold);font-weight:500}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.filter-btn{font-size:12px;padding:5px 12px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--ink-soft)}
+.filter-btn.active{background:var(--gold-light);border-color:var(--gold);color:var(--gold);font-weight:500}
+.random-btn{margin-left:auto}
+.quest-group-title{font-size:12px;font-weight:500;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;margin-top:1rem}
+.quest-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px;cursor:pointer;transition:border-color .15s}
+.quest-item:hover{border-color:var(--border-mid)}.quest-item.done{opacity:.5}
+.quest-check{width:18px;height:18px;border-radius:50%;border:1px solid var(--border-mid);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:background .2s}
+.quest-item.done .quest-check{background:var(--sage-light);border-color:var(--sage)}
+.quest-item.done .quest-check i{color:var(--sage);font-size:11px}
+.quest-name{font-size:14px;color:var(--ink);font-weight:500}.quest-desc{font-size:12px;color:var(--ink-soft);margin-top:2px}
+.quest-note{font-size:12px;color:var(--ink-mid);margin-top:4px;font-style:italic}
+.quest-cat{font-size:10px;padding:1px 7px;border-radius:10px;margin-top:3px;display:inline-block}
+.quest-xp{font-size:11px;color:var(--gold);margin-left:auto;white-space:nowrap;padding-top:2px;flex-shrink:0}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.modal{background:var(--card);border-radius:var(--radius);padding:1.25rem;width:100%;max-width:400px;border:1px solid var(--border-mid)}
+.modal h3{font-family:'Crimson Pro',serif;font-size:18px;margin-bottom:8px;color:var(--ink)}
+.modal p{font-size:13px;color:var(--ink-soft);margin-bottom:12px}
+.modal textarea{width:100%;margin-bottom:10px}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+.skill-tree{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.skill-node{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+.skill-node:hover{border-color:var(--border-mid)}
+.skill-node-name{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:3px}
+.skill-node-desc{font-size:11px;color:var(--ink-soft);margin-bottom:8px;line-height:1.4}
+.skill-prog-wrap{height:4px;background:var(--surface2);border-radius:2px}
+.skill-prog{height:4px;border-radius:2px;transition:width .5s ease}
+.skill-lvl{font-size:11px;color:var(--ink-soft);margin-top:4px;display:flex;justify-content:space-between}
+.habit-grid{display:grid;grid-template-columns:1fr;gap:8px}
+@media(min-width:480px){.habit-grid{grid-template-columns:1fr 1fr}}
+.habit-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+.habit-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.habit-icon{font-size:18px}.habit-name{font-size:13px;font-weight:500;color:var(--ink);flex:1}.habit-streak{font-size:11px;color:var(--gold)}
+.habit-dots{display:flex;gap:4px}
+.habit-dot{width:30px;height:30px;border-radius:4px;background:var(--surface);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--ink-soft);transition:background .2s;flex:1;padding:0;font-family:'Inter',sans-serif}
+.habit-dot.done{background:var(--sage-light);border-color:var(--sage)}.habit-dot.done i{color:var(--sage);font-size:12px}
+.journal-form{margin-bottom:1rem}
+.mood-row{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap}
+.mood-btn{font-size:18px;padding:4px 8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;line-height:1}
+.mood-btn.selected{background:var(--surface2);border-color:var(--border-mid)}
+.journal-entry{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px}
+.journal-entry-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.journal-entry-mood{font-size:18px}.journal-entry-date{font-size:11px;color:var(--ink-soft)}
+.journal-entry-text{font-size:14px;color:var(--ink);line-height:1.6}
+.insight{background:var(--gold-light);border-radius:var(--radius-sm);padding:10px 14px;margin-top:10px;font-size:13px;color:var(--gold);display:none;gap:8px;align-items:flex-start;line-height:1.5}
+.insight.visible{display:flex}.insight i{font-size:15px;margin-top:1px;flex-shrink:0}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(10px);background:var(--ink);color:var(--bg);font-size:13px;padding:8px 18px;border-radius:20px;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.quest-item.highlight{border-color:var(--gold);background:var(--gold-light);animation:pulse .5s ease}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+</style>
+</head>
+<body>
+<div class="app-header">
+  <div class="header-top">
+    <div><div class="app-title">Life Quest Planner</div><div class="app-sub">your adventure log</div></div>
+    <div class="xp-pill" id="total-xp-pill">0 XP</div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('character',this)"><i class="ti ti-user"></i>Character</button>
+    <button class="tab" onclick="switchTab('quests',this)"><i class="ti ti-map"></i>Quests</button>
+    <button class="tab" onclick="switchTab('skills',this)"><i class="ti ti-chart-bar"></i>Skills</button>
+    <button class="tab" onclick="switchTab('habits',this)"><i class="ti ti-calendar"></i>Habits</button>
+    <button class="tab" onclick="switchTab('journal',this)"><i class="ti ti-notebook"></i>Journal</button>
+  </div>
+</div>
+<div class="app-body">
+  <div id="panel-character" class="panel active">
+    <div class="char-row">
+      <div class="char-avatar" id="char-avatar" onclick="cycleAvatar()" title="Tap to change">🌟</div>
+      <div class="char-info">
+        <div class="char-name" id="char-name-display" onclick="showNameEdit()">Adventurer</div>
+        <div id="name-edit-wrap" class="name-edit-wrap" style="display:none">
+          <input type="text" id="name-input" placeholder="Your name..." maxlength="30"/>
+          <button onclick="saveName()"><i class="ti ti-check"></i></button>
+        </div>
+        <div class="char-class">Creative Pathfinder · Level <span id="char-level">1</span></div>
+        <div class="level-bar-wrap"><div class="level-bar" id="level-bar" style="width:5%"></div></div>
+        <div class="level-label"><span id="level-xp-label">0 / 100 XP to next level</span><span id="level-num">Lvl 1</span></div>
+      </div>
+    </div>
+    <div class="section-label">Adventure stats</div>
+    <div class="stats-summary">
+      <div class="summary-card"><div class="summary-val" id="summary-quests">0</div><div class="summary-label">Quests done</div></div>
+      <div class="summary-card"><div class="summary-val" id="summary-habits">0</div><div class="summary-label">Habits logged</div></div>
+      <div class="summary-card"><div class="summary-val" id="summary-journal">0</div><div class="summary-label">Field notes</div></div>
+    </div>
+    <div class="section-label">Core stats</div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Creativity</div><div class="stat-val" id="stat-creativity">0</div><div class="stat-bar-wrap"><div class="stat-bar" id="bar-creativity" style="width:0%;background:var(--blue)"></div></div></div>
+      <div class="stat-card"><div class="stat-label">Discipline</div><div class="stat-val" id="stat-discipline">0</div><div class="stat-bar-wrap"><div class="stat-bar" id="bar-discipline" style="width:0%;background:var(--sage)"></div></div></div>
+      <div class="stat-card"><div class="stat-label">Knowledge</div><div class="stat-val" id="stat-knowledge">0</div><div class="stat-bar-wrap"><div class="stat-bar" id="bar-knowledge" style="width:0%;background:var(--gold)"></div></div></div>
+      <div class="stat-card"><div class="stat-label">Career</div><div class="stat-val" id="stat-career">0</div><div class="stat-bar-wrap"><div class="stat-bar" id="bar-career" style="width:0%;background:var(--rose)"></div></div></div>
+    </div>
+    <div class="section-label">Log an action</div>
+    <div class="row-form">
+      <input type="text" id="log-input" placeholder="What did you do?" style="flex:1;min-width:150px"/>
+      <select id="log-type"><option value="creative">Creative</option><option value="discipline">Routine</option><option value="knowledge">Learning</option><option value="career">Career</option></select>
+      <button class="primary" onclick="logAction()"><i class="ti ti-plus"></i>Log</button>
+    </div>
+    <ul class="log-list" id="log-list"></ul>
+    <div class="insight" id="insight-char"><i class="ti ti-sparkles"></i><span id="insight-char-text"></span></div>
+  </div>
+
+  <div id="panel-quests" class="panel">
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('incomplete',this)">Incomplete</button>
+      <button class="filter-btn" onclick="setFilter('Creative',this)">Creative</button>
+      <button class="filter-btn" onclick="setFilter('Social',this)">Social</button>
+      <button class="filter-btn" onclick="setFilter('Experience',this)">Experience</button>
+      <button class="filter-btn" onclick="setFilter('Wellness',this)">Wellness</button>
+      <button class="filter-btn random-btn" onclick="pickRandomQuest()"><i class="ti ti-dice"></i>Random</button>
+    </div>
+    <div class="quest-group-title" style="margin-top:0">Main quests</div>
+    <div id="main-quests"></div>
+    <div class="quest-group-title">Side quests</div>
+    <div id="side-quests"></div>
+    <div class="section-label" style="margin-top:1.25rem">Add a quest</div>
+    <div class="row-form">
+      <input type="text" id="new-quest-name" placeholder="Quest title..." style="flex:2;min-width:140px"/>
+      <select id="new-quest-cat"><option value="Experience">Experience</option><option value="Creative">Creative</option><option value="Social">Social</option><option value="Wellness">Wellness</option></select>
+      <select id="new-quest-type"><option value="side">Side</option><option value="main">Main</option></select>
+      <button class="primary" onclick="addQuest()"><i class="ti ti-plus"></i>Add</button>
+    </div>
+    <div class="insight" id="insight-quest"><i class="ti ti-sparkles"></i><span id="insight-quest-text"></span></div>
+  </div>
+
+  <div id="panel-skills" class="panel">
+    <div class="section-label">Skill tree</div>
+    <div class="skill-tree" id="skill-tree"></div>
+    <div class="insight" id="insight-skill"><i class="ti ti-sparkles"></i><span id="insight-skill-text"></span></div>
+  </div>
+
+  <div id="panel-habits" class="panel">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="section-label" style="margin-bottom:0">Daily rituals</div>
+      <span id="habit-week-display" style="font-size:11px;color:var(--ink-soft)"></span>
+    </div>
+    <div class="habit-grid" id="habit-grid"></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button onclick="promptAddHabit()" style="flex:1"><i class="ti ti-plus"></i>Add a habit</button>
+      <button onclick="resetHabits()" style="flex:1;font-size:12px;color:var(--ink-soft)"><i class="ti ti-refresh"></i>Reset week</button>
+    </div>
+    <div class="insight" id="insight-habit"><i class="ti ti-sparkles"></i><span id="insight-habit-text"></span></div>
+  </div>
+
+  <div id="panel-journal" class="panel">
+    <div class="section-label">Field notes</div>
+    <div class="journal-form">
+      <textarea id="journal-input" placeholder="What happened today? Any wins, reflections, things you noticed..."></textarea>
+      <div class="mood-row">
+        <button class="mood-btn selected" onclick="selectMood(this,'✨')">✨</button>
+        <button class="mood-btn" onclick="selectMood(this,'🌿')">🌿</button>
+        <button class="mood-btn" onclick="selectMood(this,'😴')">😴</button>
+        <button class="mood-btn" onclick="selectMood(this,'⚡')">⚡</button>
+        <button class="mood-btn" onclick="selectMood(this,'🌧')">🌧</button>
+        <button class="primary" onclick="addJournalEntry()" style="margin-left:auto"><i class="ti ti-pencil"></i>Save</button>
+      </div>
+    </div>
+    <div id="journal-list"></div>
+    <div class="insight" id="insight-journal"><i class="ti ti-sparkles"></i><span id="insight-journal-text"></span></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="quest-modal" style="display:none" onclick="closeModal(event)">
+  <div class="modal">
+    <h3 id="modal-quest-name"></h3>
+    <p>Quest complete! Add a note (optional):</p>
+    <textarea id="modal-note-input" placeholder="Where did you go? How did it feel?"></textarea>
+    <div class="modal-btns">
+      <button onclick="closeModalSkip()">Skip</button>
+      <button class="primary" onclick="saveQuestNote()"><i class="ti ti-check"></i>Save note</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const AVATARS=['🌟','🌙','⚔️','🌿','🔮','🦋','🌸','🏹','✨','🌊'];
+const DAY_NAMES=['M','T','W','T','F','S','S'];
+const INSIGHTS={
+  creative:["The world your imagination builds — brick by brick, day by day — is the realest thing you'll ever make.","Every creative act is a small rebellion against the ordinary. Well done.","You showed up for your craft today. That's the whole game.","Your creative streak is becoming a pattern. Patterns become identity.","Creativity is a practice, not a talent. You're proving that right now."],
+  discipline:["Routine is the scaffolding that holds everything else up. Today's scaffolding: built.","Small daily actions compound into something you won't recognise in a year.","Consistency is quiet, but it's the loudest thing on your character sheet.","You did the unglamorous thing. That's actually the hardest part.","Discipline is just care in slow motion."],
+  knowledge:["Every concept you understand is a door that was locked yesterday.","You're filling in the map. The unexplored territory gets smaller every day.","Learning is the only thing that genuinely levels you up.","Curiosity compounded over time is basically a superpower.","Something you learned today will matter in a way you can't predict yet."],
+  career:["Professional momentum is invisible until suddenly it isn't.","You're building a record of someone who shows up. That record is noticed.","Every career action is a stitch in the story you're writing about yourself.","The version of you from a year ago would be impressed by this.","Career growth is rarely a leap — it's steps like this one, stacked."],
+  quest:["Quest complete. The path forward gets clearer with every milestone crossed.","That one's done. Mark it. Moves like this are what the story is made of.","Achievement unlocked — and it counts because you actually did the thing.","One fewer obstacle between you and the life you're building. Onwards.","Completed. The version of you who started this quest is proud."],
+  skill:["Every session of deliberate practice rewires something. You're being rewritten.","Skills don't announce themselves — they accumulate quietly and emerge loudly.","The gap between where you are and where you want to be just got smaller.","Training logged. This is how mastery actually happens.","Repetition is the chisel. You're the sculpture."],
+  habit:["The streak lives. One more day of being someone who does this.","Small acts done consistently become the most interesting thing about a person.","Daily rituals are how you vote for who you're becoming.","Another dot on the board. Keep placing them.","You didn't break the chain today. That matters more than it feels like it does."],
+  journal:["Naming the day — even briefly — is how you stay the author of your own story.","Writing it down means it happened. That's not nothing.","Field notes taken. You're paying attention to your own life. That's rarer than it should be.","The practice of reflection is how patterns reveal themselves.","You showed up and wrote it down. That takes more honesty than most people manage."]
+};
+function getInsight(c){const p=INSIGHTS[c]||INSIGHTS.creative;return p[Math.floor(Math.random()*p.length)];}
+function showInsight(id,text){const b=document.getElementById('insight-'+id),s=document.getElementById('insight-'+id+'-text');s.textContent=text;b.classList.add('visible');}
+
+const defaultState=()=>({
+  totalXP:0,level:1,levelXP:0,charName:'Adventurer',avatarIdx:0,
+  stats:{creativity:0,discipline:0,knowledge:0,career:0},
+  log:[],
+  quests:[
+    {id:1,name:'Launch my webcomic',desc:'Publish the first chapter',cat:'Creative',type:'main',done:false,xp:150,note:''},
+    {id:2,name:'Build the Novi MVP',desc:'Working prototype with Gemini API',cat:'Creative',type:'main',done:false,xp:200,note:''},
+    {id:3,name:'Complete final degree project',desc:'Submit and celebrate',cat:'Creative',type:'main',done:false,xp:180,note:''},
+    {id:4,name:'Write a letter to my future self',desc:'To be opened Dec 31st',cat:'Creative',type:'side',done:false,xp:50,note:''},
+    {id:5,name:'Attend a workshop',desc:'Accenture bootcamp',cat:'Experience',type:'side',done:true,xp:60,note:'Done!'},
+    {id:6,name:'Visit 3 restaurants from different cultures',desc:'Explore through food',cat:'Experience',type:'side',done:false,xp:50,note:''},
+    {id:7,name:'Go on a hike',desc:'Get outside, touch grass',cat:'Wellness',type:'side',done:false,xp:40,note:''},
+    {id:8,name:'Go to an open mic or karaoke',desc:'Show up, be brave',cat:'Social',type:'side',done:false,xp:50,note:''},
+    {id:9,name:'24hrs without a screen',desc:'Full digital detox',cat:'Wellness',type:'side',done:false,xp:70,note:''},
+    {id:10,name:'Read a non-fiction book on a new topic',desc:'Something completely unfamiliar',cat:'Creative',type:'side',done:false,xp:50,note:''},
+    {id:11,name:'Host a themed dinner',desc:'Cook, invite people, make it special',cat:'Social',type:'side',done:false,xp:60,note:''},
+    {id:12,name:'Send a handwritten thank you note',desc:'Old school gratitude',cat:'Social',type:'side',done:false,xp:30,note:''},
+    {id:13,name:'Go on a solo date',desc:'Just you, somewhere nice',cat:'Wellness',type:'side',done:false,xp:40,note:''},
+    {id:14,name:'Spend 30 minutes in public with no tech',desc:'Just observe the world',cat:'Wellness',type:'side',done:false,xp:35,note:''},
+    {id:15,name:'Visit a tourist attraction',desc:'Play tourist in your own city',cat:'Experience',type:'side',done:false,xp:40,note:''},
+    {id:16,name:'Cook a three-course meal (new recipe)',desc:'Starter, main, dessert',cat:'Experience',type:'side',done:false,xp:55,note:''},
+    {id:17,name:'Hide a positive note in a library book',desc:'Leave something for a stranger',cat:'Social',type:'side',done:false,xp:30,note:''},
+    {id:18,name:'30 min coin toss walk',desc:'Heads = right, tails = left',cat:'Experience',type:'side',done:false,xp:45,note:''},
+    {id:19,name:"Learn a 'useless' skill on a Saturday morning",desc:'The weirder the better',cat:'Experience',type:'side',done:false,xp:40,note:''},
+    {id:20,name:'Listen to old music',desc:'Something from before you were born',cat:'Experience',type:'side',done:false,xp:25,note:''},
+    {id:21,name:'Touch grass (no tech)',desc:'Outside. No phone. Just be.',cat:'Wellness',type:'side',done:false,xp:30,note:''},
+    {id:22,name:'Fill a sketchbook page with no plan',desc:'Just marks, no pressure',cat:'Creative',type:'side',done:false,xp:35,note:''},
+    {id:23,name:'Write a scene just for yourself',desc:'No audience, no pressure',cat:'Creative',type:'side',done:false,xp:40,note:''},
+    {id:24,name:'Make a playlist for a fictional character',desc:"Could be yours or someone else's",cat:'Creative',type:'side',done:false,xp:30,note:''},
+    {id:25,name:"Watch a film from a country you've never visited",desc:'Subtitles count',cat:'Experience',type:'side',done:false,xp:35,note:''},
+    {id:26,name:"Visit a museum or gallery you've never been to",desc:'Wander without a plan',cat:'Experience',type:'side',done:false,xp:40,note:''},
+    {id:27,name:'Eat a meal in complete silence',desc:'No phone, just food and thought',cat:'Wellness',type:'side',done:false,xp:30,note:''},
+    {id:28,name:'Take a different route home every day for a week',desc:'Seven days, seven paths',cat:'Experience',type:'side',done:false,xp:50,note:''},
+    {id:29,name:"Call someone you haven't spoken to in over a year",desc:'Reach back',cat:'Social',type:'side',done:false,xp:40,note:''},
+    {id:30,name:'Ask an older family member for a story',desc:'From before you were born',cat:'Social',type:'side',done:false,xp:45,note:''},
+    {id:31,name:'Write a letter to someone who influenced you',desc:"Doesn't have to be sent",cat:'Social',type:'side',done:false,xp:40,note:''},
+    {id:32,name:'Spend an hour saying yes to everything',desc:'Within reason, of course',cat:'Experience',type:'side',done:false,xp:45,note:''},
+    {id:33,name:"Enter somewhere you've walked past 100 times",desc:"That place you've always been curious about",cat:'Experience',type:'side',done:false,xp:35,note:''},
+    {id:34,name:'Learn 10 words in a language you know nothing about',desc:'Pick any language',cat:'Creative',type:'side',done:false,xp:30,note:''},
+  ],
+  skills:[
+    {id:1,name:'Storytelling',desc:'Writing, narrative, world-building',xp:0,max:200,color:'var(--blue)'},
+    {id:2,name:'Frontend craft',desc:'React, UI/UX, design systems',xp:0,max:200,color:'var(--sage)'},
+    {id:3,name:'Creative direction',desc:'Illustration, aesthetics, brand',xp:0,max:200,color:'var(--gold)'},
+    {id:4,name:'Technical depth',desc:'APIs, backend, AI integration',xp:0,max:200,color:'var(--rose)'},
+  ],
+  habits:[
+    {id:1,name:'Draw / sketch',icon:'✏️',days:[false,false,false,false,false,false,false],streak:0,weekStart:''},
+    {id:2,name:'Write something',icon:'📝',days:[false,false,false,false,false,false,false],streak:0,weekStart:''},
+    {id:3,name:'Move your body',icon:'🌿',days:[false,false,false,false,false,false,false],streak:0,weekStart:''},
+    {id:4,name:'Learn something new',icon:'📖',days:[false,false,false,false,false,false,false],streak:0,weekStart:''},
+  ],
+  journal:[],selectedMood:'✨',pendingQuestId:null
+});
+
+let state=defaultState();
+function save(){try{localStorage.setItem('lqp_v2',JSON.stringify(state));}catch(e){}}
+function load(){try{const r=localStorage.getItem('lqp_v2');if(r){const s=JSON.parse(r);state=Object.assign(defaultState(),s);}}catch(e){}}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function switchTab(name,btn){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('panel-'+name).classList.add('active');btn.classList.add('active');}
+function animateNum(el,to){const from=parseInt(el.textContent)||0;if(from===to)return;const steps=20,dur=500;let i=0;const iv=setInterval(()=>{i++;el.textContent=Math.round(from+(to-from)*(i/steps));if(i>=steps)clearInterval(iv);},dur/steps);}
+function updateCharPanel(){
+  const s=state.stats,mx=300;
+  ['creativity','discipline','knowledge','career'].forEach(k=>{animateNum(document.getElementById('stat-'+k),s[k]);document.getElementById('bar-'+k).style.width=Math.min(100,(s[k]/mx)*100)+'%';});
+  const need=state.level*100;
+  document.getElementById('level-bar').style.width=Math.min(100,(state.levelXP/need)*100)+'%';
+  document.getElementById('level-xp-label').textContent=state.levelXP+' / '+need+' XP to next level';
+  document.getElementById('level-num').textContent='Lvl '+state.level;
+  document.getElementById('char-level').textContent=state.level;
+  document.getElementById('total-xp-pill').textContent=state.totalXP+' XP';
+  document.getElementById('char-name-display').textContent=state.charName;
+  document.getElementById('char-avatar').textContent=AVATARS[state.avatarIdx%AVATARS.length];
+  document.getElementById('summary-quests').textContent=state.quests.filter(q=>q.done).length;
+  document.getElementById('summary-habits').textContent=state.habits.reduce((a,h)=>a+h.days.filter(Boolean).length,0);
+  document.getElementById('summary-journal').textContent=state.journal.length;
+}
+function showNameEdit(){document.getElementById('name-edit-wrap').style.display='flex';const i=document.getElementById('name-input');i.value=state.charName;i.focus();}
+function saveName(){const v=document.getElementById('name-input').value.trim();if(v){state.charName=v;save();updateCharPanel();}document.getElementById('name-edit-wrap').style.display='none';}
+function cycleAvatar(){state.avatarIdx=(state.avatarIdx+1)%AVATARS.length;document.getElementById('char-avatar').textContent=AVATARS[state.avatarIdx];save();}
+const xpMap={creative:12,discipline:8,knowledge:10,career:15};
+const statMap={creative:'creativity',discipline:'discipline',knowledge:'knowledge',career:'career'};
+const typeLabel={creative:'Creative',discipline:'Routine',knowledge:'Learning',career:'Career'};
+function addXP(xp){state.totalXP+=xp;state.levelXP+=xp;while(state.levelXP>=state.level*100){state.levelXP-=state.level*100;state.level++;showToast('Level up! You reached Level '+state.level+' ✨');}}
+function logAction(){const inp=document.getElementById('log-input'),type=document.getElementById('log-type').value,text=inp.value.trim();if(!text)return;const xp=xpMap[type];addXP(xp);state.stats[statMap[type]]+=xp;state.log.unshift({text,type,xp,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});inp.value='';save();renderLog();updateCharPanel();showInsight('char',getInsight(type));}
+function renderLog(){document.getElementById('log-list').innerHTML=state.log.slice(0,6).map(l=>`<li class="log-item"><span class="badge badge-${l.type}">${typeLabel[l.type]}</span><span class="log-text">${l.text}</span><span class="log-xp">+${l.xp} XP</span></li>`).join('');}
+let activeFilter='all';
+function setFilter(f,btn){activeFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderQuests();}
+function filterQ(qs){if(activeFilter==='all')return qs;if(activeFilter==='incomplete')return qs.filter(q=>!q.done);return qs.filter(q=>q.cat===activeFilter);}
+const catBg={Creative:'var(--blue-light)',Social:'var(--rose-light)',Experience:'var(--gold-light)',Wellness:'var(--sage-light)'};
+const catFg={Creative:'var(--blue)',Social:'var(--rose)',Experience:'var(--gold)',Wellness:'var(--sage)'};
+function renderQuests(){
+  const render=q=>`<div class="quest-item${q.done?' done':''}" id="quest-${q.id}" onclick="toggleQuest(${q.id})"><div class="quest-check">${q.done?'<i class="ti ti-check"></i>':''}</div><div style="flex:1"><div class="quest-name">${q.name}</div>${q.desc?`<div class="quest-desc">${q.desc}</div>`:''} ${q.note?`<div class="quest-note">📝 ${q.note}</div>`:''}<span class="quest-cat" style="background:${catBg[q.cat]||'var(--surface)'};color:${catFg[q.cat]||'var(--ink-soft)'}">${q.cat||''}</span></div><div class="quest-xp">+${q.xp} XP</div></div>`;
+  const main=filterQ(state.quests.filter(q=>q.type==='main'));
+  const side=filterQ(state.quests.filter(q=>q.type==='side'));
+  document.getElementById('main-quests').innerHTML=main.map(render).join('')||'<p style="font-size:13px;color:var(--ink-soft);padding:8px 0">No quests match this filter.</p>';
+  document.getElementById('side-quests').innerHTML=side.map(render).join('')||'<p style="font-size:13px;color:var(--ink-soft);padding:8px 0">No quests match this filter.</p>';
+}
+function toggleQuest(id){const q=state.quests.find(q=>q.id===id);if(!q)return;if(!q.done){state.pendingQuestId=id;document.getElementById('modal-quest-name').textContent=q.name;document.getElementById('modal-note-input').value='';document.getElementById('quest-modal').style.display='flex';}else{q.done=false;state.totalXP=Math.max(0,state.totalXP-q.xp);save();updateCharPanel();renderQuests();}}
+function completeQuest(note){const id=state.pendingQuestId;if(!id)return;const q=state.quests.find(q=>q.id===id);if(!q)return;q.done=true;q.note=note||'';addXP(q.xp);state.pendingQuestId=null;save();updateCharPanel();renderQuests();showInsight('quest',getInsight('quest'));showToast('Quest complete! +'+q.xp+' XP');}
+function saveQuestNote(){const note=document.getElementById('modal-note-input').value.trim();document.getElementById('quest-modal').style.display='none';completeQuest(note);}
+function closeModalSkip(){document.getElementById('quest-modal').style.display='none';completeQuest('');}
+function closeModal(e){if(e.target.id==='quest-modal')closeModalSkip();}
+function addQuest(){const name=document.getElementById('new-quest-name').value.trim(),cat=document.getElementById('new-quest-cat').value,type=document.getElementById('new-quest-type').value;if(!name)return;state.quests.push({id:Date.now(),name,desc:'',cat,type,done:false,xp:type==='main'?120:50,note:''});document.getElementById('new-quest-name').value='';save();renderQuests();showToast('Quest added to the board');}
+function pickRandomQuest(){const inc=state.quests.filter(q=>q.type==='side'&&!q.done);if(!inc.length){showToast('All side quests complete! 🎉');return;}const q=inc[Math.floor(Math.random()*inc.length)];activeFilter='all';document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));document.querySelector('.filter-btn').classList.add('active');renderQuests();setTimeout(()=>{const el=document.getElementById('quest-'+q.id);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('highlight');setTimeout(()=>el.classList.remove('highlight'),1500);}},100);showToast('Your quest: '+q.name);}
+function renderSkills(){document.getElementById('skill-tree').innerHTML=state.skills.map(s=>{const lvl=Math.floor(s.xp/20)+1,pct=Math.min(100,((s.xp%20)/20)*100);return`<div class="skill-node"><div class="skill-node-name">${s.name}</div><div class="skill-node-desc">${s.desc}</div><div class="skill-prog-wrap"><div class="skill-prog" style="width:${pct}%;background:${s.color}"></div></div><div class="skill-lvl"><span>Level ${lvl}</span><span>${s.xp} XP</span></div><button onclick="trainSkill(${s.id})" style="margin-top:8px;font-size:12px;padding:5px 10px"><i class="ti ti-bolt"></i>Train (+10 XP)</button></div>`;}).join('');}
+function trainSkill(id){const s=state.skills.find(s=>s.id===id);if(!s)return;s.xp+=10;addXP(10);save();updateCharPanel();renderSkills();showInsight('skill',getInsight('skill'));}
+function getWeekStart(){const d=new Date(),day=d.getDay(),diff=d.getDate()-day+(day===0?-6:1);return new Date(new Date().setDate(diff)).toDateString();}
+function checkWeekReset(){const ws=getWeekStart();state.habits.forEach(h=>{if(h.weekStart&&h.weekStart!==ws){h.days=[false,false,false,false,false,false,false];h.streak=0;h.weekStart=ws;}else if(!h.weekStart){h.weekStart=ws;}});save();}
+function renderHabits(){const ws=getWeekStart(),d=new Date(ws),end=new Date(d);end.setDate(end.getDate()+6);const fmt=dt=>dt.toLocaleDateString('en-GB',{day:'numeric',month:'short'});document.getElementById('habit-week-display').textContent=fmt(d)+' – '+fmt(end);document.getElementById('habit-grid').innerHTML=state.habits.map(h=>`<div class="habit-card"><div class="habit-header"><span class="habit-icon">${h.icon}</span><span class="habit-name">${h.name}</span><span class="habit-streak">${h.streak>0?'🔥 '+h.streak:''}</span></div><div class="habit-dots">${DAY_NAMES.map((d,i)=>`<button class="habit-dot${h.days[i]?' done':''}" onclick="toggleHabit(${h.id},${i})" aria-label="${d}">${h.days[i]?'<i class="ti ti-check"></i>':d}</button>`).join('')}</div></div>`).join('');}
+function toggleHabit(id,dayIdx){const h=state.habits.find(h=>h.id===id);if(!h)return;h.days[dayIdx]=!h.days[dayIdx];if(h.days[dayIdx]){addXP(5);updateCharPanel();showInsight('habit',getInsight('habit'));}h.streak=h.days.filter(Boolean).length;save();renderHabits();}
+function resetHabits(){if(!confirm('Reset all habit dots for a new week?'))return;const ws=getWeekStart();state.habits.forEach(h=>{h.days=[false,false,false,false,false,false,false];h.streak=0;h.weekStart=ws;});save();renderHabits();showToast('New week, new dots ✨');}
+function promptAddHabit(){const name=prompt('What habit do you want to build?');if(!name||!name.trim())return;const icons=['⭐','🎨','💪','🧠','🎵','🌙','☀️','🌸','🏃','📚'];state.habits.push({id:Date.now(),name:name.trim(),icon:icons[Math.floor(Math.random()*icons.length)],days:[false,false,false,false,false,false,false],streak:0,weekStart:getWeekStart()});save();renderHabits();}
+function selectMood(btn,mood){document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');state.selectedMood=mood;}
+function addJournalEntry(){const text=document.getElementById('journal-input').value.trim();if(!text)return;state.journal.unshift({text,mood:state.selectedMood,date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})});document.getElementById('journal-input').value='';save();renderJournal();showInsight('journal',getInsight('journal'));}
+function renderJournal(){const list=document.getElementById('journal-list');if(!state.journal.length){list.innerHTML='<p style="font-size:13px;color:var(--ink-soft);padding:4px 0">No entries yet. Write your first field note above.</p>';return;}list.innerHTML=state.journal.map(e=>`<div class="journal-entry"><div class="journal-entry-top"><span class="journal-entry-mood">${e.mood}</span><span class="journal-entry-date">${e.date}</span></div><div class="journal-entry-text">${e.text}</div></div>`).join('');}
+document.getElementById('log-input').addEventListener('keydown',e=>{if(e.key==='Enter')logAction();});
+document.getElementById('name-input').addEventListener('keydown',e=>{if(e.key==='Enter')saveName();});
+load();checkWeekReset();updateCharPanel();renderLog();renderQuests();renderSkills();renderHabits();renderJournal();
+</script>
+</body>
+</html>
